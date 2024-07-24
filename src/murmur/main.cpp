@@ -378,7 +378,8 @@ int main(int argc, char **argv) {
 #endif
 		} else if ((arg == "-h") || (arg == "-help") || (arg == "--help")) {
 			detach = false;
-			qInfo("Usage: %s [-ini <inifile>] [-supw <password>]\n"
+			qInfo("Welcome to the Woto's Hall Of Voice! (Mumble Fork)\n"
+				  "Usage: %s [-ini <inifile>] [-supw <password>]\n"
 				  "  --version              Print version information and exit\n"
 				  "  -ini <inifile>         Specify ini file to use.\n"
 				  "  -supw <pw> [srv]       Set password for 'SuperUser' account on server srv.\n"

@@ -2,6 +2,7 @@ Makefile
 *.Debug
 *.Release
 debug/
+production/
 release/
 asio/
 local/
