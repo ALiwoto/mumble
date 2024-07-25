@@ -16,7 +16,9 @@
 typedef WId HWND;
 #	endif
 #	define __cdecl
-#	define INVALID_SOCKET -1
+    #ifndef INVALID_SOCKET
+    #define INVALID_SOCKET -1
+    #endif
 #	define SOCKET_ERROR -1
 #	define CopyMemory(dst, ptr, len) memcpy(dst, ptr, len)
 #	define ZeroMemory(ptr, len) memset(ptr, 0, len)

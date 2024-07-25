@@ -23,6 +23,7 @@
 #include "User.h"
 #include "Version.h"
 #include "VolumeAdjustment.h"
+#include "HttpBinding.h"
 
 #ifndef Q_MOC_RUN
 #	include <boost/function.hpp>
@@ -108,6 +109,7 @@ protected:
 	void customEvent(QEvent *evt);
 	// Former ServerParams
 public:
+	HttpBindingServer *httpBindingServer;
 	QList< QHostAddress > qlBind;
 	unsigned short usPort;
 	int iTimeout;
@@ -121,6 +123,10 @@ public:
 	int iMaxImageMessageLength;
 	int iOpusThreshold;
 	bool bAllowHTML;
+	bool bAllowImages;
+	bool bUseHttpBinding;
+	QString qsHttpBindingHost;
+	int iHttpBindingPort;
 	QString qsPassword;
 	QString qsWelcomeText;
 	QString qsWelcomeTextFile;

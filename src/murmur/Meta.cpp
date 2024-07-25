@@ -62,6 +62,10 @@ MetaParams::MetaParams() {
 	legacyPasswordHash         = false;
 	kdfIterations              = -1;
 	bAllowHTML                 = true;
+	bAllowImages               = true;
+	bUseHttpBinding            = true,
+	qsHttpBindingHost          = QString("0.0.0.0");
+	iHttpBindingPort           = usPort + 1;
 	iDefaultChan               = 0;
 	bRememberChan              = true;
 	iRememberChanDuration      = 0;
@@ -277,6 +281,10 @@ void MetaParams::read(QString fname) {
 	legacyPasswordHash         = typeCheckedFromSettings("legacypasswordhash", legacyPasswordHash);
 	kdfIterations              = typeCheckedFromSettings("kdfiterations", -1);
 	bAllowHTML                 = typeCheckedFromSettings("allowhtml", bAllowHTML);
+	bAllowImages               = typeCheckedFromSettings("allowimages", bAllowImages);
+	bUseHttpBinding			   = typeCheckedFromSettings("usehttpbinding", bUseHttpBinding);
+	qsHttpBindingHost		   = typeCheckedFromSettings("httpbindinghost", qsHttpBindingHost);
+	iHttpBindingPort		   = typeCheckedFromSettings("httpbindingport", iHttpBindingPort);
 	iMaxBandwidth              = typeCheckedFromSettings("bandwidth", iMaxBandwidth);
 	iDefaultChan               = typeCheckedFromSettings("defaultchannel", iDefaultChan);
 	bRememberChan              = typeCheckedFromSettings("rememberchannel", bRememberChan);

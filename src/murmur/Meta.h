@@ -54,6 +54,7 @@ public:
 	/// available there yet found by a benchmark.
 	int kdfIterations;
 	bool bAllowHTML;
+	bool bAllowImages;
 	QString qsPassword;
 	QString qsWelcomeText;
 	QString qsWelcomeTextFile;
@@ -151,6 +152,10 @@ public:
 
 	/// A flag indicating whether recording is allowed on this server
 	bool allowRecording;
+
+	bool bUseHttpBinding;
+	QString qsHttpBindingHost;
+	int iHttpBindingPort;
 
 	/// qsAbsSettingsFilePath is the absolute path to
 	/// the murmur.ini used by this Meta instance.

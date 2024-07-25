@@ -36,6 +36,9 @@ set(MURMUR_SOURCES
 	"ServerDB.h"
 	"ServerUser.cpp"
 	"ServerUser.h"
+	"httplib.h"
+	"HttpBinding.cpp"
+	"HttpBinding.h"
 
 	"${SHARED_SOURCE_DIR}/ACL.cpp"
 	"${SHARED_SOURCE_DIR}/ACL.h"

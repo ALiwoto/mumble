@@ -103,6 +103,11 @@ Server::Server(int snum, QObject *p) : QThread(p) {
 	readParams();
 	initialize();
 
+	if (bUseHttpBinding) {
+		httpBindingServer = new HttpBindingServer(qsHttpBindingHost.toStdString(), iHttpBindingPort);
+		httpBindingServer->start();
+	}
+
 	foreach (const QHostAddress &qha, qlBind) {
 		SslServer *ss = new SslServer(this);
 
@@ -331,6 +336,10 @@ void Server::readParams() {
 	iMaxTextMessageLength              = Meta::mp.iMaxTextMessageLength;
 	iMaxImageMessageLength             = Meta::mp.iMaxImageMessageLength;
 	bAllowHTML                         = Meta::mp.bAllowHTML;
+	bUseHttpBinding       	   	   	   = Meta::mp.bUseHttpBinding;
+	qsHttpBindingHost	  	   	   	   = Meta::mp.qsHttpBindingHost;
+	iHttpBindingPort 	   	   	   	   = Meta::mp.iHttpBindingPort;
+	bAllowImages 					   = Meta::mp.bAllowImages;
 	iDefaultChan                       = Meta::mp.iDefaultChan;
 	bRememberChan                      = Meta::mp.bRememberChan;
 	iRememberChanDuration              = Meta::mp.iRememberChanDuration;
