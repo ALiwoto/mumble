@@ -15,6 +15,7 @@ set(ICE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/MumbleServer.ice")
 include(qt-utils)
 
 option(ice "Build support for Ice RPC." ON)
+option(bundled-json "Build the included version of nlohmann_json instead of looking for one on the system" ON)
 
 find_pkg(Qt5 COMPONENTS Sql REQUIRED)
 
@@ -198,6 +199,17 @@ if(NOT WIN32 AND NOT APPLE)
 	target_compile_definitions(mumble-server PUBLIC "USE_DBUS")
 	target_link_libraries(mumble-server PRIVATE Qt5::DBus)
 endif()
+
+if(bundled-json)
+	set(JSON_BuildTests OFF CACHE INTERNAL "")
+	set(JSON_ImplicitConversions ON CACHE INTERNAL "")
+	set(JSON_SystemInclude ON CACHE INTERNAL "")
+	add_subdirectory("${3RDPARTY_DIR}/nlohmann_json/" "${CMAKE_CURRENT_BINARY_DIR}/nlohmann_json/" EXCLUDE_FROM_ALL)
+else()
+	find_pkg("nlohmann_json" REQUIRED)
+endif()
+
+target_link_libraries(mumble-server PUBLIC nlohmann_json::nlohmann_json)
 
 if(ice)
 	find_pkg(Ice

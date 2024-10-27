@@ -41,6 +41,7 @@
 #include <algorithm>
 #include <cassert>
 #include <vector>
+#include <nlohmann/json.hpp>
 
 #ifdef Q_OS_WIN
 #	include <qos2.h>
@@ -50,7 +51,55 @@
 #	include <poll.h>
 #endif
 
-void HttpBindingServer::handle_PingRequest(const httplib::Request &req, httplib::Response &res) {
-    std:: cout << req.path << std::endl;
-    res.set_content("Pong", "text/plain");
+#include "ServerDB.h"
+#include "Server.h"
+#include <QtSql/QSqlError>
+#include <QtSql/QSqlQuery>
+
+
+void HttpBindingServer::handle_serverPing(const httplib::Request &req, httplib::Response &res) {
+    if (req.get_header_value("X-Full-Ping") == "1") {
+        this->send_json_result(res, {
+            {"ping", "pong"},
+            {"version", "1.2.3"},
+            {"uptime", 123456}
+        });
+        return;
+    }
+    this->send_json_result(res, {
+        {"ping", "pong"}
+    });
+}
+
+void HttpBindingServer::handle_userLogin(const httplib::Request &req, httplib::Response &res) {
+    nlohmann::json body = nlohmann::json::parse(req.body);
+    if (body.is_null()) {
+        this->send_invalid_data_error(res);
+        return;
+    }
+
+    if (!body.contains("username") || !body.contains("password")) {
+        this->send_invalid_username_pass(res);
+        return;
+    }
+
+    QString username = QString::fromStdString(body["username"].get<std::string>());
+    QString password = QString::fromStdString(body["password"].get<std::string>());
+    std::cout << "Username: " << username.toStdString() << std::endl;
+    std::cout << "Password: " << password.toStdString() << std::endl;
+
+    int serverId = 1;
+    if (body.contains("server_id"))
+        serverId = body["server_id"].get<int>();
+    
+    Server *server = this->m_meta->qhServers[serverId];
+    server->authenticate(username, password);
+    std::cout << "Username: " << username.toStdString() << std::endl;
+    std::cout << "Password: " << password.toStdString() << std::endl;
+}
+
+void HttpBindingServer::handle_userMe(const httplib::Request &req, httplib::Response &res) {
+    this->send_json_result(res, {
+        {"test", req.path}
+    });
 }

@@ -715,6 +715,10 @@ bool Meta::boot(int srvnum) {
 		delete s;
 		return false;
 	}
+	if (s->httpBindingServer) {
+		s->httpBindingServer->set_meta(this);
+	}
+	
 	qhServers.insert(srvnum, s);
 	emit started(s);
 

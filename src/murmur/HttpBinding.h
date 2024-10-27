@@ -23,6 +23,7 @@
 #	include <boost/function.hpp>
 #endif
 
+#include <nlohmann/json.hpp>
 #include <QtCore/QEvent>
 #include <QtCore/QMutex>
 #include <QtCore/QQueue>
@@ -45,7 +46,19 @@
 #endif
 #include "httplib.h"
 
+class QSqlDatabase;
+class Meta;
+
 const std::string V1_API_PREFIX = "/api/v1";
+#define API_V1_HANDLER(path, handler) \
+    V1_API_PREFIX + path, [&](const httplib::Request& req, httplib::Response& res) { \
+        try { \
+            handler(req, res); \
+        } catch (const std::exception& e) { \
+            this->send_internal_error(res, e); \
+        } \
+    }
+
 
 
 class HttpBindingServer : public QThread {
@@ -62,16 +75,61 @@ public:
         this->hostAddr = host;
         this->hostPort = port;
 
-        server->Get(V1_API_PREFIX + "/ping", [&](const httplib::Request& req, httplib::Response& res) {
-            handle_PingRequest(req, res);
-        });
+        server->Get(API_V1_HANDLER("/server/ping", handle_serverPing));
 
+        server->Post(API_V1_HANDLER("/user/login", handle_userLogin));
 
-        server->Get("/hi", [](const httplib::Request& req, httplib::Response& res) {
-            // print reqest's path
-            std::cout << req.path << std::endl;
-            res.set_content("Hello World!", "text/plain");
-        });
+        server->Get(API_V1_HANDLER("/user/me", handle_userMe));
+    }
+
+    void set_meta(Meta *meta) {
+        this->m_meta = meta;
+    }
+
+    void send_json_data(httplib::Response& res, const nlohmann::json& result) {
+        res.set_content(result.dump(), "application/json");
+    }
+
+    void send_json_result(httplib::Response& res, const nlohmann::json& result) {
+        nlohmann::json result_json = {
+            {"success", true},
+            {"result", result},
+            {"error", nullptr},
+        };
+        res.set_content(result_json.dump(), "application/json");
+    }
+
+    void send_internal_error(httplib::Response& res, const std::exception& e) {
+        this->send_json_data(res, {
+                    {"success", false},
+                    {"error", {
+                            {"code", 500},
+                            {"message", e.what()},
+                        },
+                    },
+                });
+    }
+
+    void send_invalid_data_error(httplib::Response& res) {
+        this->send_json_data(res, {
+                    {"success", false},
+                    {"error", {
+                            {"code", 400},
+                            {"message", "Invalid data"},
+                        },
+                    },
+                });
+    }
+
+    void send_invalid_username_pass(httplib::Response& res) {
+        this->send_json_data(res, {
+                    {"success", false},
+                    {"error", {
+                            {"code", 400},
+                            {"message", "Invalid username or password"},
+                        },
+                    },
+                });
     }
 
     ~HttpBindingServer() {
@@ -80,8 +138,14 @@ public:
 
 
 
-    // Handles a request to the /ping endpoint.
-    void handle_PingRequest(const httplib::Request& req, httplib::Response& res);
+    // server/ping
+    void handle_serverPing(const httplib::Request& req, httplib::Response& res);
+
+    // user/login
+    void handle_userLogin(const httplib::Request& req, httplib::Response& res);
+
+    // user/me
+    void handle_userMe(const httplib::Request& req, httplib::Response& res);
 
 private:
     void run_server() {
@@ -92,6 +156,7 @@ private:
     httplib::Server *server;
     std::string hostAddr = "0.0.0.0";
     int hostPort = 8080;
+    Meta *m_meta;
 };
 
 #endif
